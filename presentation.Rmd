@@ -358,7 +358,7 @@ class: center, middle
 
 # Thanks!
 
-These slides are available at http://osorensen.rbind.io/.
+These slides are available at https://osorensen.rbind.io/.
 
 Created via the R package [**xaringan**](https://github.com/yihui/xaringan).
 
