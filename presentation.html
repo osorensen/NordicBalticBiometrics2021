@@ -199,6 +199,22 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 # Profile Likelihood Estimation
 
+- Efficient software available for fitting generalized additive mixed models: `gamm4`, `mgcv`.
+
+- Idea&lt;sup&gt;1&lt;/sup&gt;: Split the parameter space in two. 
+
+  - `\(\Theta_{1}\)` containing factor loadings and regression coefficients between latent variables.
+  
+  - `\(\Theta_{2}\)` containing spline coefficients, variance components, parametric regression coefficients.
+  
+- Profile likelihood algorithm:
+  1. Estimate `\(\hat{\Theta}_{2}(\Theta_{1})\)` using existing GAMM software.
+  2. Maximize profile likelihood `\(L\{\Theta_{1}, \hat{\Theta}_{2}(\Theta_{1})\}\)`.
+  
+- Asymptotic covariance matrix of `\(\hat{\Theta}_{1}\)` obtained directly from inverse Hessian, while `\(\hat{\Theta}_{2}\)` requires additional computation of Jacobian.
+
+.footnote[[1] Based on [Jeon and Rabe-Hesketh (2012)](https://journals.sagepub.com/doi/10.3102/1076998611417628).]
+
 ---
 
 
