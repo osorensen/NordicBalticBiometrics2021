@@ -209,11 +209,156 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 ---
 
+class: inverse, middle, center
+
+# Applications
+
+
+---
+
+# Episodic Memory
+
+![](figures/cvlt_sample_plot.png)
+
+
+---
+
+# Episodic Memory
+
+Measurement model for elementary unit $i$:
+
+$$\nu_{i} = \underbrace{\mathbf{d}_{ti}'\boldsymbol{\beta}_{t}}_{\text{test version}} + \underbrace{d_{ri}\beta_{r}}_{\text{retest effect}} + \underbrace{\mathbf{d}_{ti}'\boldsymbol{\lambda}}_{\text{factor loading}}\sum_{l=2}^{3} \underbrace{\eta^{(l)}}_{\text{latent level}}$$
+
+Structural model for level-2 unit $j$:
+
+$$\boldsymbol{\eta}_{j} = 
+\begin{bmatrix}
+\eta_{jk}^{(2)} \\
+\eta_{k}^{(3)}
+\end{bmatrix} 
+= 
+\underbrace{
+\begin{bmatrix}
+h\left(w_{jk}\right) \\
+0
+\end{bmatrix} 
+}_{\text{smooth fun. of age}}
++
+\underbrace{
+\begin{bmatrix}
+\zeta_{jk}^{(2)} \\
+\zeta_{k}^{(3)}
+\end{bmatrix}}_{\text{random intercepts}}$$
+
+
+---
+
+# Episodic Memory
+
+Profile likelihood estimation, $\hat{\Theta}_{2}(\Theta_{1})$ amounts to fitting the following GAMM over a grid of $\boldsymbol{\lambda}$ values:
+
+$$\nu_{i} = \mathbf{d}_{ti}'\boldsymbol{\beta}_{t} + d_{ri}\beta_{r} + h\left(w_{jk}\right) \mathbf{d}_{ti}'\boldsymbol{\lambda} + \zeta_{jk}^{(2)}\mathbf{d}_{ti}'\boldsymbol{\lambda} + \zeta_{k}^{(3)} \mathbf{d}_{ti}'\boldsymbol{\lambda}$$
+Then find $\hat{\boldsymbol{\lambda}} = \hat{\Theta}_{1}$ as the parameters maximizing the log-likelihood.
+
+
+---
+
+# Episodic Memory
+
+
+
+.pull-left[
+
+Item response curves:
+
+![](figures/cvlt_irc.png)
+]
+.pull-right[
+
+Lifespan trajectory of latent episodic memory:
+
+![](figures/univariate_cvlt_smooth.png)
+]
+
+---
+
+# Episodic and Working Memory
+
+Important question in cognitive neuroscience: How is change in cognitive performance correlated across cognitive domains?
+
+We extended the previous model to also include items measuring working memory, and estimated a factor-by-curve model.
+
+![](figures/cvlt_dspan_figure.png)
+
+---
+
+# Socioeconomic Status and Hippocampus
+
+Hippocampus is a brain region which plays an important role in memory consolidation, and is one of the first regions to be damaged in Alzheimer's disease.
+
+It has been suggested that low socioeconomic status is bad for development of the hippocampus, and hence is a risk factor for dementia.
+
+<center>
+<img src="figures/hippocampus_plot.png", width=400>
+</center>
+
+---
+
+# Socioeconomic Status and Hippocampus
+
+We defined socioeconomic status (SES) as a latent variable constructed by
+
+- For kids: Mother's and father's income and education level.
+
+- For adults: Participant's own income and education level.
+
+Latent covariate model, $y_{i}$ contains both income, education, and hippocampus volume:
+
+$$y_{i} = \mathbf{d}_{\text{s},i}'\boldsymbol{\beta}_{\text{s}} + d_{h,i}\left\{ \mathbf{x}_{\text{h},i}' \boldsymbol{\beta}_{\text{h}} + f\left(a_{i}\right)\right\} +  \eta_{1}^{(2)} \mathbf{z}_{i}' \boldsymbol{\lambda}_{1} + d_{\text{h},i} \eta_{2}^{(2)} + \epsilon_{i}$$
+Main targets of inference are two terms in vector $\boldsymbol{\lambda}_{1}$: 
+
+  - Offset effect of SES on hippocampal volume.
+  
+  - Linear interaction effect of SES on hippocampal volume.
+
+---
+
+# Socioeconomic Status and Hippocampus
+
+We did not find much of an effect here:
+
+<center>
+<img src="figures/ses_smooth.png" width = 500>
+</center>
+
+---
+
+
+class: inverse, middle, center
+
+# Summary
+
+---
+
+# Summary
+
+- Generalized additive latent and mixed models allow multilevel latent variable modeling when the latent variables themselves depends smoothly on one or more observed covariates.
+
+- Typical applications in longitudinal and spatial modeling.
+
+- Profile likelihood algorithm allows use of existing GAMM software. An R package implementing the method is available from https://github.com/LCBC-UiO/galamm
+
+- Extensive simulations suggest that asymptotic covariance matrices are highly accurate with moderate sample sizes.
+
+- All the details in preprint: https://arxiv.org/abs/2105.02488
+
+---
 
 class: center, middle
 
 # Thanks!
 
-Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+These slides are available at http://osorensen.rbind.io/.
 
-The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](https://yihui.org/knitr/), and [R Markdown](https://rmarkdown.rstudio.com).
+Created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+
