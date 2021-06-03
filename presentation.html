@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Longitudinal modeling of age-dependent latent traits with generalized additive latent and mixed models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Øystein Sørensen" />
+    <script src="libs/header-attrs-2.8/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Longitudinal modeling of age-dependent latent traits with generalized additive latent and mixed models
+### Øystein Sørensen
+### Center for Lifespan Changes in Brain and Cognition</br>University of Oslo
+### Nordic-Baltic Biometrics Virtual Conference, 2021/06/08
+
+---
+
+
+class: inverse, middle, center
+
+# Motivation
+
+---
+
+# Latent Variable Models
+
+In psychology and social sciences, variables of interest are often measured with multiple *items*.
+
+For example
+
+- In psychometrics, latent abilities like working memory or executive function are defined by the response to multiple tasks.
+
+- Surveys often use multiple questions to define a respondent's attitudes towards a given topic.
+
+Classical tools for analyzing such data include factor analysis, item response theory, and structural equation models.
+
+---
+
+class: inverse, middle, center
+
+# Motivating Example
+
+---
+
+# Episodic Memory
+
+California verbal learning test: 
+
+  - 16 words read out loud. Participant asked to repeat back.
+  
+
+![](figures/cvlt_sample_plot.png)
+
+---
+
+# Episodic Memory
+
+- Ability to recall words depends nonlinearly on age.
+
+- Ceiling effects. Later trials are easier.
+
+- Repeated measurements. Five trials completed at each timepoint.
+
+![](figures/cvlt_sample_plot.png)
+
+
+---
+
+# Episodic Memory
+
+Research question:
+
+  - How does episodic memory vary across the lifespan? Where is the peak, maximum increase, maximum decline?
+  
+  - How does the lifespan trajectory interact with variables like genetics, brain structure, socioeconomic status?
+
+![](figures/cvlt_sample_plot.png)
+
+
+---
+
+class: inverse, middle, center
+
+# Generalized Additive Latent and Mixed Models
+
+
+---
+
+# General Framework
+
+- A combination of generalized additive mixed models&lt;sup&gt;1&lt;/sup&gt; and generalized linear latent and mixed models&lt;sup&gt;2&lt;/sup&gt;.
+
+- Multilevel models with components varying at `\(L\)` levels. `\(\boldsymbol{\eta}^{(l)}\)` denotes a vector of latent variables varying at level `\(l\)`, and the vector of all latent variables belonging to a given level-2 unit is
+
+`$$\boldsymbol{\eta}_{j} = 
+\begin{bmatrix}
+\boldsymbol{\eta}_{jk\dots z}^{(2)}{}^{'},
+\boldsymbol{\eta}_{k\dots z}^{(3)}{}^{'},
+\dots,
+\boldsymbol{\eta}_{z}^{(L)}{}^{'}
+\end{bmatrix}'$$`
+
+- More details in the paper&lt;sup&gt;3&lt;/sup&gt;.
+
+
+.footnote[[1] For an introduction, see [Wood (2017), Generalized Additive Models](https://www.taylorfrancis.com/books/mono/10.1201/9781315370279/generalized-additive-models-simon-wood).&lt;br&gt;
+[2] [Skrondal and Rabe-Hesketh (2004), Generalized Latent Variable Modeling](https://www.taylorfrancis.com/books/mono/10.1201/9780203489437/generalized-latent-variable-modeling-anders-skrondal-sophia-rabe-hesketh).&lt;br&gt;
+[3] [Sørensen, Fjell, and Walhovd (2021), arXiv preprint](https://arxiv.org/abs/2105.02488)
+.]
+
+---
+
+# Part 1: Response Distribution
+
+Response distributed according to exponential family.
+
+`$$f\left(y_{i} | \theta_{i}, \phi\right) = \exp\left\{\frac{y_{i}\theta_{i} - b\left(\theta_{i}\right)}{\phi} + c\left(y_{i}, \phi\right)  \right\}$$`
+
+
+Elementary units of observation indexed by `\(i\)`, e.g., a single trial in the California verbal learning test shown previously.
+
+Link function may vary with index `\(i\)`.
+
+
+---
+
+# Part 2: Measurement Model
+
+Linking the observed responses to latent variables `\(\eta_{m}^{(l)}\)` of interest.
+
+`$$\nu_{i} = \sum_{s=1}^{S} f_{s}\left(\mathbf{x}_{i}\right) + \sum_{l=2}^{L}\sum_{m=1}^{M_{l}} \eta_{m}^{(l)} \mathbf{z}^{(l)}_{mi}{}^{'}\boldsymbol{\lambda}_{m}^{(l)}$$`
+
+Hierarchical model with `\(L\)` levels. Each level `\(l\)` has `\(M_{l}\)` latent variables. Factor loadings `\(\boldsymbol{\lambda}_{m}^{(l)}\)` link the latent variables to the observed measurements.
+
+Smooth functions `\(f_{s}(\cdot)\)`, e.g., 
+
+`$$f_{s}\left(\mathbf{x}_{i}\right) = \sum_{k=1}^{B_{s}} \omega_{ks} b_{ks}\left(\mathbf{x}_{i}\right), ~ s=1, \dots, S.$$`
+
+---
+
+# Part 3: Structural Model
+
+Structural model
+
+`$$\boldsymbol{\eta}_{j} = \mathbf{B}\boldsymbol{\eta}_{j} + \mathbf{h}\left(\mathbf{w}_{j}\right)+ \boldsymbol{\zeta}_{j}$$`
+
+`\(\mathbf{B}\)` contains regression coefficients between latent variables.
+
+`\(\mathbf{h}\left(\mathbf{w}_{j}\right)\)` are smooth functions describing how the latent variables depend on explanatory variables.
+
+`$$\mathbf{h}\left(\mathbf{w}_{j}\right) = 
+\begin{bmatrix}
+\mathbf{h}_{2}\left\{\mathbf{w}_{j}^{(2+)}\right\} \\
+\mathbf{h}_{3}\left\{\mathbf{w}_{j}^{(3+)}\right\} \\
+\vdots \\
+\mathbf{h}_{L}\left\{\mathbf{w}_{j}^{(L)}\right\} 
+\end{bmatrix};
+~
+\mathbf{h}_{l}\left\{\mathbf{w}_{j}^{(l+)}\right\} = 
+\begin{bmatrix}
+h_{l1}\left\{\mathbf{w}_{j}^{(l+)}\right\} \\
+h_{l2}\left\{\mathbf{w}_{j}^{(l+)}\right\} \\
+\vdots \\
+h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
+\end{bmatrix}$$`
+
+
+---
+
+# What's new?
+
+- The functions `\(f_{s}\left(\mathbf{x}_{i}\right)\)` in the measurement model and `\(\mathbf{h}\left(\mathbf{w}_{j}\right)\)` are completely arbitrary. We typically assume that they are linear combinations of certain basis functions, subject to a smoothing penalty. 
+
+- Allows flexible nonlinear modeling without requiring the parametric form to be a priori specified.
+
+- Some Bayesian developments along these lines have been proposed, but all restricted to only two levels. With this framework, an arbitrary number of levels is allowed, as well as crossed random effects.
+
+
+---
+
+# Mixed Model Representation
+
+- Assume the smooth functions are subject penalization. 
+
+- For example, second derivative penalization amounts to adding terms of the form `\(\gamma^{f}_{s} \int f_{s}''(\mathbf{u})^{2}\text{d}\mathbf{u}\)` and `\(\gamma^{h}_{lm} \int h_{lm}''(\mathbf{u})^{2}\text{d}\mathbf{u}\)` to the log-likelihood.
+
+- This type of penalized spline problem can be represented as a mixed model&lt;sup&gt;1&lt;/sup&gt;. The part of the smooth functions in the penalty nullspace are fixed effects, and the part in the penalty range space are random effects.
+
+- The proposed generalized additive latent and mixed models can be shown to be equivalent to nonlinear mixed models, with a number of parameter constraints.
+
+.footnote[[1] Dating back to [Kimeldorf and Wahba (1970)](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-41/issue-2/A-Correspondence-Between-Bayesian-Estimation-on-Stochastic-Processes-and-Smoothing/10.1214/aoms/1177697089.full).]
+
+
+---
+
+# Profile Likelihood Estimation
+
+---
+
+
+class: center, middle
+
+# Thanks!
+
+Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+
+The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](https://yihui.org/knitr/), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
