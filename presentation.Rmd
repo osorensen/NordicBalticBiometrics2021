@@ -14,7 +14,7 @@ output:
 
 class: inverse, middle, center
 
-# Motivation
+# Introduction
 
 ---
 
@@ -30,48 +30,27 @@ For example
 
 Classical tools for analyzing such data include factor analysis, item response theory, and structural equation models.
 
----
-
-class: inverse, middle, center
-
-# Motivating Example
 
 ---
 
-# Episodic Memory
+# Semiparametric Latent Variable Models
 
-California verbal learning test: 
+In many applications, the latent variables are smooth functions of age or location.
 
-  - 16 words read out loud. Participant asked to repeat back.
+--
+
+Example: California verbal learning test of episodic memory
+
+  - Five trials completed at a single test session.
+  
+  - Latent episodic memory seems to depend smoothly on age.
   
 
-![](figures/cvlt_sample_plot.png)
+<center>
+<img src="figures/cvlt_sample_plot.png", width=600>
+</center>
 
----
-
-# Episodic Memory
-
-- Ability to recall words depends nonlinearly on age.
-
-- Ceiling effects. Later trials are easier.
-
-- Repeated measurements. Five trials completed at each timepoint.
-
-![](figures/cvlt_sample_plot.png)
-
-
----
-
-# Episodic Memory
-
-Research question:
-
-  - How does episodic memory vary across the lifespan? Where is the peak, maximum increase, maximum decline?
-  
-  - How does the lifespan trajectory interact with variables like genetics, brain structure, socioeconomic status?
-
-![](figures/cvlt_sample_plot.png)
-
+Most latent variable models are fully parametric, and this is impractical with these types of nonlinearities.
 
 ---
 
@@ -115,7 +94,7 @@ $$f\left(y_{i} | \theta_{i}, \phi\right) = \exp\left\{\frac{y_{i}\theta_{i} - b\
 
 Elementary units of observation indexed by $i$, e.g., a single trial in the California verbal learning test shown previously.
 
-Link function may vary with index $i$.
+All responses are stacked in the vector $\mathbf{y} = (y_{1}, y_{2}, \dots, y_{n})'$. Often the responses can be of completely different types, so dummy variables are used extensively in the regression models.
 
 
 ---
@@ -131,6 +110,8 @@ Hierarchical model with $L$ levels. Each level $l$ has $M_{l}$ latent variables.
 Smooth functions $f_{s}(\cdot)$, e.g., 
 
 $$f_{s}\left(\mathbf{x}_{i}\right) = \sum_{k=1}^{B_{s}} \omega_{ks} b_{ks}\left(\mathbf{x}_{i}\right), ~ s=1, \dots, S.$$
+
+with weights $\omega_{ks}$ constraint by some smoothing penalty.
 
 ---
 
@@ -209,6 +190,25 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 ---
 
+# Profile Likelihood Estimation
+
+Core of the algorithm, in R
+
+```{r, eval=FALSE}
+optim(lambda_init, function(lambda){
+  dat$weight <- lambda[dat$item]
+  
+  mod <- gamm4(
+    formula = formula, random = random, 
+    start = gammstart, data = dat
+  )
+  -as.numeric(logLik(mod$mer))
+  }, method = "L-BFGS-B", hessian = TRUE)
+```
+
+
+---
+
 class: inverse, middle, center
 
 # Applications
@@ -228,6 +228,17 @@ class: inverse, middle, center
 Measurement model for elementary unit $i$:
 
 $$\nu_{i} = \underbrace{\mathbf{d}_{ti}'\boldsymbol{\beta}_{t}}_{\text{test version}} + \underbrace{d_{ri}\beta_{r}}_{\text{retest effect}} + \underbrace{\mathbf{d}_{ti}'\boldsymbol{\lambda}}_{\text{factor loading}}\sum_{l=2}^{3} \underbrace{\eta^{(l)}}_{\text{latent level}}$$
+
+In words:
+
+
+- Linear predictor for the probability of answering correctly on the test is a function of some covariates of no interest as well as the true latent level of episodic memory.
+
+
+---
+
+# Episodic Memory
+
 
 Structural model for level-2 unit $j$:
 
@@ -250,57 +261,126 @@ h\left(w_{jk}\right) \\
 \zeta_{k}^{(3)}
 \end{bmatrix}}_{\text{random intercepts}}$$
 
+For a given participant:
+
+- $\eta_{jk}^{(2)}$ is the latent level of episodic memory at a given timepoint. It consists of a smooth function of age and a random intercept across tests at the given timepoint.
+
+- $\eta_{k}^{(3)}$ is the random intercept of episodic memory across timepoints.
 
 ---
 
 # Episodic Memory
 
-Profile likelihood estimation, $\hat{\Theta}_{2}(\Theta_{1})$ amounts to fitting the following GAMM over a grid of $\boldsymbol{\lambda}$ values:
+By plugging the structural model into the measurement model we obtain the reduced form
 
 $$\nu_{i} = \mathbf{d}_{ti}'\boldsymbol{\beta}_{t} + d_{ri}\beta_{r} + h\left(w_{jk}\right) \mathbf{d}_{ti}'\boldsymbol{\lambda} + \zeta_{jk}^{(2)}\mathbf{d}_{ti}'\boldsymbol{\lambda} + \zeta_{k}^{(3)} \mathbf{d}_{ti}'\boldsymbol{\lambda}$$
-Then find $\hat{\boldsymbol{\lambda}} = \hat{\Theta}_{1}$ as the parameters maximizing the log-likelihood.
+
+At fixed $\Theta_{1}=\boldsymbol{\lambda}$, this is a generalized additive mixed model. Profile likelihood estimation exploits this by using GAMM software to fit $\hat{\Theta}_{2}(\Theta_{1})$ over a range of $\boldsymbol{\lambda}$ values.
+
+
+Then find $\hat{\boldsymbol{\lambda}} = \hat{\Theta}_{1}$ as the parameters maximizing the profile log-likelihood, and we have estimates of all parameters.
 
 
 ---
 
 # Episodic Memory
 
-
+Some results, based on 3470 timepoints for 1850 participants between 6 and 93 years of age.
 
 .pull-left[
 
-Item response curves:
+Item response curves
 
 ![](figures/cvlt_irc.png)
 ]
 .pull-right[
 
-Lifespan trajectory of latent episodic memory:
+Lifespan trajectory
 
 ![](figures/univariate_cvlt_smooth.png)
+
+Shaded regions are 95% pointwise and simultaneous confidence intervals.
+
 ]
 
 ---
 
 # Episodic and Working Memory
 
-Important question in cognitive neuroscience: How is change in cognitive performance correlated across cognitive domains?
+Important question in cognitive neuroscience: 
+
+- How is change in cognitive performance correlated across cognitive domains?
+
+---
+
+# Episodic and Working Memory
 
 We extended the previous model to also include items measuring working memory, and estimated a factor-by-curve model.
 
+
+$$\nu_{i} = \mathbf{d}_{ti}'\boldsymbol{\beta}_{t} + \mathbf{d}_{ri}'\boldsymbol{\beta}_{r} + \sum_{l=2}^{3} \sum_{m=1}^{2} \mathbf{d}_{ti}'\boldsymbol{\lambda}_{m} \eta_{m}^{(l)}$$
+
+$$\boldsymbol{\eta} = 
+\begin{bmatrix}
+\eta_{1}^{(2)} \\
+\eta_{2}^{(2)} \\
+\eta_{1}^{(3)} \\
+\eta_{2}^{(3)}
+\end{bmatrix} 
+= 
+\begin{bmatrix}
+h_{1}\left(w\right) \\
+h_{2}\left(w\right) \\
+0 \\
+0
+\end{bmatrix} 
++
+\begin{bmatrix}
+\zeta_{1}^{(2)} \\
+\zeta_{2}^{(2)} \\
+\zeta_{1}^{(3)} \\
+\zeta_{2}^{(3)}
+\end{bmatrix}$$
+
+Still three levels, but now two latent variables at each level. Since episodic and working memory are closely related, we assumed a common smoothing parameter for $h_{1}(w)$ and $h_{2}(w)$.
+
+---
+
+# Episodic and Working Memory
+
+Some results. Density plot (right) obtained with empirical Bayes posterior sampling.
+
 ![](figures/cvlt_dspan_figure.png)
+
+The estimated correlation between random intercepts, $\text{cor}\left\{\zeta_{1}^{(3)}, \zeta_{2}^{(3)}\right\}$, was 0.41. Hence, people's episodic memory and working memory are positively correlated.
+
+---
+
+class: inverse, middle, center
+
+# Another Application
 
 ---
 
 # Socioeconomic Status and Hippocampus
 
-Hippocampus is a brain region which plays an important role in memory consolidation, and is one of the first regions to be damaged in Alzheimer's disease.
+- Hippocampus is a brain region which plays an important role in memory consolidation, and is one of the first regions to be damaged in Alzheimer's disease. 
 
-It has been suggested that low socioeconomic status is bad for development of the hippocampus, and hence is a risk factor for dementia.
+- It has been suggested that low socioeconomic status is bad for development of the hippocampus, and hence is a risk factor for dementia<sup>1</sup>.
+
+.footnote[[1] [Livingston et al. (2017), Dementia prevention, intervention, and care. The Lancet.](Dementia prevention, intervention, and care)]
+
+
+---
+
+# Socioeconomic Status and Hippocampus
+
+We used data from 4196 MRI scans of 1886 participants.
 
 <center>
 <img src="figures/hippocampus_plot.png", width=400>
 </center>
+
 
 ---
 
@@ -312,20 +392,36 @@ We defined socioeconomic status (SES) as a latent variable constructed by
 
 - For adults: Participant's own income and education level.
 
-Latent covariate model, $y_{i}$ contains both income, education, and hippocampus volume:
+---
 
-$$y_{i} = \mathbf{d}_{\text{s},i}'\boldsymbol{\beta}_{\text{s}} + d_{h,i}\left\{ \mathbf{x}_{\text{h},i}' \boldsymbol{\beta}_{\text{h}} + f\left(a_{i}\right)\right\} +  \eta_{1}^{(2)} \mathbf{z}_{i}' \boldsymbol{\lambda}_{1} + d_{\text{h},i} \eta_{2}^{(2)} + \epsilon_{i}$$
-Main targets of inference are two terms in vector $\boldsymbol{\lambda}_{1}$: 
+# Socioeconomic Status and Hippocampus
 
-  - Offset effect of SES on hippocampal volume.
+Latent covariate model, with response $y_{i}$ constructed by stacking income, education, and hippocampal volume:
+
+
+$$y_{i} = \mathbf{d}_{\text{s},i}'\boldsymbol{\beta}_{\text{s}} + d_{h,i}\left\{ \mathbf{x}_{\text{h},i}' \boldsymbol{\beta}_{\text{h}} + f\left(a_{i}\right)\right\} +  \eta_{1}^{(2)} \mathbf{z}_{i}' \boldsymbol{\lambda} + d_{\text{h},i} \eta_{2}^{(2)} + \epsilon_{i}$$
+
+--
+
+Research question:
+
+  - How does socioeconomic status $\eta_{1}^{(2)}$ interact with the lifespan hippocampal trajectory $f(a_{i})$?
   
-  - Linear interaction effect of SES on hippocampal volume.
+--
+  
+Solution:
+
+  - Through dummy variables, when elementary unit $i$ represents a hippocampal volume, $\mathbf{z}_{i}\boldsymbol{\lambda} = \lambda_{7} + a_{i}\lambda_{8}$, where $a_{i}$ is the age at that timepoint.
+  
+  - Thus, $\lambda_{7}$ is the offset effect of SES on hippocampal volume and $\lambda_{8}$ is the linear interaction between age and SES.
 
 ---
 
 # Socioeconomic Status and Hippocampus
 
-We did not find much of an effect here:
+Conclusion:
+
+- 95% CIs for both the offset effect and the interaction effect contained zero. Hence, not much evidence for an effect of socioeconomic status on hippocampal volume in these data.
 
 <center>
 <img src="figures/ses_smooth.png" width = 500>
@@ -360,5 +456,5 @@ class: center, middle
 
 These slides are available at https://osorensen.rbind.io/.
 
-Created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+Created via the R package [xaringan](https://github.com/yihui/xaringan).
 
