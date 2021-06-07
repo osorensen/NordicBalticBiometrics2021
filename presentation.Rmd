@@ -18,39 +18,45 @@ class: inverse, middle, center
 
 ---
 
+<img src="figures/paper_header.png">
+
+.footnote[https://arxiv.org/abs/2105.02488]
+
+---
+
 # Latent Variable Models
 
-In psychology and social sciences, variables of interest are often measured with multiple *items*.
+Multiple observations measure a latent trait, e.g.
 
-For example
+- Cognitive abilities follow from responses to different tests.
 
-- In psychometrics, latent abilities like working memory or executive function are defined by the response to multiple tasks.
+- Attitudes measured by responses to survey questions.
 
-- Surveys often use multiple questions to define a respondent's attitudes towards a given topic.
+Classical tools
 
-Classical tools for analyzing such data include factor analysis, item response theory, and structural equation models.
+  - Factor analysis
+  
+  - Item response theory
+  
+  - Structural equation models.
 
 
 ---
 
 # Semiparametric Latent Variable Models
 
-In many applications, the latent variables are smooth functions of age or location.
-
---
-
 Example: California verbal learning test of episodic memory
 
-  - Five trials completed at a single test session.
+  - Five trials at a single test session.
   
   - Latent episodic memory seems to depend smoothly on age.
   
 
 <center>
-<img src="figures/cvlt_sample_plot.png", width=600>
+<img src="figures/cvlt_sample_plot.png", width=700>
 </center>
 
-Most latent variable models are fully parametric, and this is impractical with these types of nonlinearities.
+Issue: Typical latent variable models are parametric.
 
 ---
 
@@ -75,24 +81,22 @@ $$\boldsymbol{\eta}_{j} =
 \boldsymbol{\eta}_{z}^{(L)}{}^{'}
 \end{bmatrix}'$$
 
-- More details in the paper<sup>3</sup>.
+
 
 
 .footnote[[1] For an introduction, see [Wood (2017), Generalized Additive Models](https://www.taylorfrancis.com/books/mono/10.1201/9781315370279/generalized-additive-models-simon-wood).<br>
-[2] [Skrondal and Rabe-Hesketh (2004), Generalized Latent Variable Modeling](https://www.taylorfrancis.com/books/mono/10.1201/9780203489437/generalized-latent-variable-modeling-anders-skrondal-sophia-rabe-hesketh).<br>
-[3] [Sørensen, Fjell, and Walhovd (2021), arXiv preprint](https://arxiv.org/abs/2105.02488)
-.]
+[2] [Skrondal and Rabe-Hesketh (2004), Generalized Latent Variable Modeling](https://www.taylorfrancis.com/books/mono/10.1201/9780203489437/generalized-latent-variable-modeling-anders-skrondal-sophia-rabe-hesketh).]
 
 ---
 
 # Part 1: Response Distribution
 
-Response distributed according to exponential family.
+Elementary units of observation distributed according to an exponential family.
 
 $$f\left(y_{i} | \theta_{i}, \phi\right) = \exp\left\{\frac{y_{i}\theta_{i} - b\left(\theta_{i}\right)}{\phi} + c\left(y_{i}, \phi\right)  \right\}$$
 
 
-Elementary units of observation indexed by $i$, e.g., a single trial in the California verbal learning test shown previously.
+
 
 All responses are stacked in the vector $\mathbf{y} = (y_{1}, y_{2}, \dots, y_{n})'$. Often the responses can be of completely different types, so dummy variables are used extensively in the regression models.
 
@@ -105,13 +109,19 @@ Linking the observed responses to latent variables $\eta_{m}^{(l)}$ of interest.
 
 $$\nu_{i} = \sum_{s=1}^{S} f_{s}\left(\mathbf{x}_{i}\right) + \sum_{l=2}^{L}\sum_{m=1}^{M_{l}} \eta_{m}^{(l)} \mathbf{z}^{(l)}_{mi}{}^{'}\boldsymbol{\lambda}_{m}^{(l)}$$
 
-Hierarchical model with $L$ levels. Each level $l$ has $M_{l}$ latent variables. Factor loadings $\boldsymbol{\lambda}_{m}^{(l)}$ link the latent variables to the observed measurements.
+- Hierarchical model with $L$ levels. Each level $l$ has $M_{l}$ latent variables. Factor loadings $\boldsymbol{\lambda}_{m}^{(l)}$ link the latent variables to the observed measurements.
+
+- Related to confirmatory factor analysis: $\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta}$.
+
+--
 
 Smooth functions $f_{s}(\cdot)$, e.g., 
 
 $$f_{s}\left(\mathbf{x}_{i}\right) = \sum_{k=1}^{B_{s}} \omega_{ks} b_{ks}\left(\mathbf{x}_{i}\right), ~ s=1, \dots, S.$$
 
-with weights $\omega_{ks}$ constraint by some smoothing penalty.
+with weights $\omega_{ks}$ constrained by some smoothing penalty.
+
+
 
 ---
 
@@ -121,14 +131,13 @@ Structural model
 
 $$\boldsymbol{\eta}_{j} = \mathbf{B}\boldsymbol{\eta}_{j} + \mathbf{h}\left(\mathbf{w}_{j}\right)+ \boldsymbol{\zeta}_{j}$$
 
-$\mathbf{B}$ contains regression coefficients between latent variables.
+- $\mathbf{B}$ contains regression coefficients between latent variables.
 
-$\mathbf{h}\left(\mathbf{w}_{j}\right)$ are smooth functions describing how the latent variables depend on explanatory variables.
+- $\mathbf{h}\left(\mathbf{w}_{j}\right)$ are smooth functions describing how the latent variables depend on explanatory variables.
 
 $$\mathbf{h}\left(\mathbf{w}_{j}\right) = 
 \begin{bmatrix}
 \mathbf{h}_{2}\left\{\mathbf{w}_{j}^{(2+)}\right\} \\
-\mathbf{h}_{3}\left\{\mathbf{w}_{j}^{(3+)}\right\} \\
 \vdots \\
 \mathbf{h}_{L}\left\{\mathbf{w}_{j}^{(L)}\right\} 
 \end{bmatrix};
@@ -136,21 +145,21 @@ $$\mathbf{h}\left(\mathbf{w}_{j}\right) =
 \mathbf{h}_{l}\left\{\mathbf{w}_{j}^{(l+)}\right\} = 
 \begin{bmatrix}
 h_{l1}\left\{\mathbf{w}_{j}^{(l+)}\right\} \\
-h_{l2}\left\{\mathbf{w}_{j}^{(l+)}\right\} \\
 \vdots \\
 h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 \end{bmatrix}$$
 
+- Related to structural equation models: $\boldsymbol{\eta} = \mathbf{B}\boldsymbol{\eta} +\boldsymbol{\Gamma}\mathbf{w}+ \boldsymbol{\zeta}$.
 
 ---
 
 # What's new?
 
-- The functions $f_{s}\left(\mathbf{x}_{i}\right)$ in the measurement model and $\mathbf{h}\left(\mathbf{w}_{j}\right)$ are completely arbitrary. We typically assume that they are linear combinations of certain basis functions, subject to a smoothing penalty. 
+- The functions $f_{s}\left(\mathbf{x}_{i}\right)$ in the measurement model and $\mathbf{h}\left(\mathbf{w}_{j}\right)$ are arbitrary.
 
 - Allows flexible nonlinear modeling without requiring the parametric form to be a priori specified.
 
-- Some Bayesian developments along these lines have been proposed, but all restricted to only two levels. With this framework, an arbitrary number of levels is allowed, as well as crossed random effects.
+- Some Bayesian developments along these lines have been proposed, but all restricted to only two levels. With our framework, an arbitrary number of levels is allowed, as well as crossed random effects.
 
 
 ---
@@ -163,7 +172,7 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 - This type of penalized spline problem can be represented as a mixed model<sup>1</sup>. The part of the smooth functions in the penalty nullspace are fixed effects, and the part in the penalty range space are random effects.
 
-- The proposed generalized additive latent and mixed models can be shown to be equivalent to nonlinear mixed models, with a number of parameter constraints.
+- We develop a recipe for transforming the proposed models to nonlinear mixed models.
 
 .footnote[[1] Dating back to [Kimeldorf and Wahba (1970)](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-41/issue-2/A-Correspondence-Between-Bayesian-Estimation-on-Stochastic-Processes-and-Smoothing/10.1214/aoms/1177697089.full).]
 
@@ -172,7 +181,7 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 # Profile Likelihood Estimation
 
-- Efficient software available for fitting generalized additive mixed models: `gamm4`, `mgcv`.
+- Efficient software for maximum likelihood estimation of generalized additive mixed models: `gamm4`, `mgcv`.
 
 - Idea<sup>1</sup>: Split the parameter space in two. 
 
@@ -184,7 +193,7 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
   1. Estimate $\hat{\Theta}_{2}(\Theta_{1})$ using existing GAMM software.
   2. Maximize profile likelihood $L\{\Theta_{1}, \hat{\Theta}_{2}(\Theta_{1})\}$.
   
-- Asymptotic covariance matrix of $\hat{\Theta}_{1}$ obtained directly from inverse Hessian, while $\hat{\Theta}_{2}$ requires additional computation of Jacobian.
+- Asymptotic covariance matrix of $\left(\hat{\Theta}_{1}, \hat{\Theta}_{2}\right)$ follow from known results.
 
 .footnote[[1] Based on [Jeon and Rabe-Hesketh (2012)](https://journals.sagepub.com/doi/10.3102/1076998611417628).]
 
@@ -196,14 +205,20 @@ Core of the algorithm, in R
 
 ```{r, eval=FALSE}
 optim(lambda_init, function(lambda){
-  dat$weight <- lambda[dat$item]
+  dat$weight <- lambda[dat$item] # update factor loadings
   
+  # fit generalized additive mixed model
   mod <- gamm4(
     formula = formula, random = random, 
     start = gammstart, data = dat
   )
+  
+  # return negative loglikelihood
   -as.numeric(logLik(mod$mer))
-  }, method = "L-BFGS-B", hessian = TRUE)
+  }, 
+  method = "L-BFGS-B", # quasi-Newton method
+  hessian = TRUE # needed for covariance matrix
+  )
 ```
 
 
@@ -232,7 +247,7 @@ $$\nu_{i} = \underbrace{\mathbf{d}_{ti}'\boldsymbol{\beta}_{t}}_{\text{test vers
 In words:
 
 
-- Linear predictor for the probability of answering correctly on the test is a function of some covariates of no interest as well as the true latent level of episodic memory.
+- Linear predictor for the probability of answering correctly on the test is a function of some covariates as well as the true latent level of episodic memory.
 
 
 ---
@@ -366,16 +381,23 @@ class: inverse, middle, center
 
 - Hippocampus is a brain region which plays an important role in memory consolidation, and is one of the first regions to be damaged in Alzheimer's disease. 
 
-- It has been suggested that low socioeconomic status is bad for development of the hippocampus, and hence is a risk factor for dementia<sup>1</sup>.
+- It has been suggested that low socioeconomic status is bad for development of the hippocampus, and hence is a risk factor for dementia.
 
-.footnote[[1] [Livingston et al. (2017), Dementia prevention, intervention, and care. The Lancet.](Dementia prevention, intervention, and care)]
+.pull-left[
+  ![](figures/mri_scanner.jpg)
+]
+.pull-right[
+  ![](figures/aseg.jpg)
+]
+
+
 
 
 ---
 
 # Socioeconomic Status and Hippocampus
 
-We used data from 4196 MRI scans of 1886 participants.
+Data from 4196 MRI scans of 1886 participants.
 
 <center>
 <img src="figures/hippocampus_plot.png", width=400>
@@ -411,7 +433,7 @@ Research question:
   
 Solution:
 
-  - Through dummy variables, when elementary unit $i$ represents a hippocampal volume, $\mathbf{z}_{i}\boldsymbol{\lambda} = \lambda_{7} + a_{i}\lambda_{8}$, where $a_{i}$ is the age at that timepoint.
+  - Through dummy variables, when elementary unit $i$ represents a hippocampal volume, $\mathbf{z}_{i}'\boldsymbol{\lambda} = \lambda_{7} + a_{i}\lambda_{8}$, where $a_{i}$ is the age at that timepoint.
   
   - Thus, $\lambda_{7}$ is the offset effect of SES on hippocampal volume and $\lambda_{8}$ is the linear interaction between age and SES.
 
