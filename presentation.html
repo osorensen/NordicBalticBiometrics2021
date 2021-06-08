@@ -64,7 +64,7 @@ Example: California verbal learning test of episodic memory
 &lt;img src="figures/cvlt_sample_plot.png", width=700&gt;
 &lt;/center&gt;
 
-Issue: Typical latent variable models are parametric.
+Question: How does latent episodic memory vary across the lifespan?
 
 ---
 
@@ -163,7 +163,7 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 # What's new?
 
-- The functions `\(f_{s}\left(\mathbf{x}_{i}\right)\)` in the measurement model and `\(\mathbf{h}\left(\mathbf{w}_{j}\right)\)` are arbitrary.
+- The functions `\(f_{s}\left(\mathbf{x}_{i}\right)\)` in the measurement model and `\(\mathbf{h}\left(\mathbf{w}_{j}\right)\)` in the structural model are arbitrary.
 
 - Allows flexible nonlinear modeling without requiring the parametric form to be a priori specified.
 
@@ -189,7 +189,19 @@ h_{l,M_{l}}\left\{\mathbf{w}_{j}^{(l+)}\right\}
 
 # Profile Likelihood Estimation
 
-- Efficient software for maximum likelihood estimation of generalized additive mixed models: `gamm4`, `mgcv`.
+- With longitudinal data for thousands of participants, random effect matrices are **really sparse**. Implementations must take care of this, or else they'll multiply zeros forever.
+
+- But we can utilize existing software:
+
+  - `gamm4`, running on top of `lme4` 
+  
+  - `mgcv`, running on top of `nlme`
+
+
+
+---
+
+# Profile Likelihood Estimation
 
 - Idea&lt;sup&gt;1&lt;/sup&gt;: Split the parameter space in two. 
 
